@@ -16,7 +16,7 @@ terraform {
     }
   }
   cloud {
-    organization = "corify"
+    organization = "dasmeta"
     workspaces {
       tags = ["component:aws_backup"]
     }
