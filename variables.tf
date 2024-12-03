@@ -64,18 +64,18 @@ variable "plan_selection_tag" {
 
 variable "rules" {
   description = "List of rules to attach to the plan"
-  type = list(map)
-  default = [ 
+  type        = list(map)
+  default = [
     {
-      name = "daily"
-      schedule = "cron(0 12 * * ? *)"
+      name              = "daily"
+      schedule          = "cron(0 12 * * ? *)"
       continuous_backup = true
-      vault = local.vault_namexw
-      
+      vault             = "Backup"
+
       recovery_point_tags = {
-        Environment = var.env
-        Plan = var.backup_plan_name
+        Environment = "dev"
+        Plan        = "plan name"
       }
     }
-   ]
+  ]
 }

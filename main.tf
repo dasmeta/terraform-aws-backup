@@ -55,6 +55,6 @@ resource "aws_backup_selection" "tagged_daily" {
     }
 
   }
-  
+
   iam_role_arn = aws_iam_role.backup.arn
 }
