@@ -8,34 +8,34 @@ resource "aws_kms_key" "backup" {
 }
 
 resource "aws_kms_alias" "backup" {
-  name          = "alias/aws_backup-${var.env}"
+  name          = "alias/aws_backup-${var.vault_name}"
   target_key_id = aws_kms_key.backup.arn
 }
 
 resource "aws_backup_vault" "this" {
-  name        = local.vault_name
+  name        = var.vault_name
   kms_key_arn = aws_kms_key.backup.arn
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 
 resource "aws_backup_plan" "daily" {
   name = "daily-${var.env}"
 
-  rule {
-    rule_name                = "daily"
-    target_vault_name        = aws_backup_vault.this.name
-    schedule                 = var.backup_schedule
-    enable_continuous_backup = var.enable_continuous_backup
+  dynamic "rule" {
+    for_each = var.rules
+    content {
+      rule_name                = rule.value.name
+      target_vault_name        = aws_backup_vault.this.name
+      schedule                 = rule.value.schedule
+      enable_continuous_backup = rule.value.continuous_backup
 
-    lifecycle {
-      delete_after = var.backup_retention_days
-    }
+      lifecycle {
+        delete_after = var.backup_retention_days
+      }
 
-    recovery_point_tags = {
-      Environment = var.env
     }
   }
 }
@@ -44,16 +44,14 @@ resource "aws_backup_selection" "tagged_daily" {
   name    = "daily-tagged-${var.env}"
   plan_id = aws_backup_plan.daily.id
 
-  # selection rules
+  # Selection rules
   dynamic "selection_tag" {
     for_each = var.plan_selection_tag
     content {
       type  = "STRINGEQUALS"
       key   = selection_tag.value["key"]
       value = selection_tag.value["value"]
-
     }
-
   }
 
   iam_role_arn = aws_iam_role.backup.arn

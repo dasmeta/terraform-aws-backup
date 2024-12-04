@@ -1,8 +1,14 @@
-variable "env" {
-  description = "Deployment environment"
+variable "vault_name" {
+  description = "Backup vault name"
   type        = string
+  default     = "backup_vault"
 }
 
+variable "env" {
+  description = "Envrionment for the plan"
+  type        = string
+  default     = "prod"
+}
 variable "region" {
   description = "The region where resources should be managed."
   type        = string
@@ -53,18 +59,18 @@ variable "backup_plan_name" {
 
 variable "plan_selection_tag" {
   description = "Resource selection for the plan"
-  type        = list(map)
+  type        = list(map(string))
   default = [
     {
-      key   = ""
-      value = ""
+      key   = "Environment"
+      value = "Production"
     }
   ]
 }
 
 variable "rules" {
   description = "List of rules to attach to the plan"
-  type        = list(map)
+  type        = list(any)
   default = [
     {
       name              = "daily"
@@ -72,10 +78,6 @@ variable "rules" {
       continuous_backup = true
       vault             = "Backup"
 
-      recovery_point_tags = {
-        Environment = "dev"
-        Plan        = "plan name"
-      }
     }
   ]
 }

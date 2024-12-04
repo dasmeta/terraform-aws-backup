@@ -129,13 +129,13 @@ locals {
 EOT
 }
 
-resource "aws_backup_vault_notifications" "this" {
-  count             = var.enable_sns_notifications ? 1 : 0
-  backup_vault_name = local.vault_name
-  sns_topic_arn     = module.sns_topic.sns_topic_arn
-  backup_vault_events = [
-    "BACKUP_JOB_COMPLETED", # filter successful backups on sns subscription!
-    "RESTORE_JOB_STARTED", "RESTORE_JOB_COMPLETED",
-    "S3_BACKUP_OBJECT_FAILED", "S3_RESTORE_OBJECT_FAILED"
-  ]
-}
+# resource "aws_backup_vault_notifications" "this" {
+#   count             = var.enable_sns_notifications ? 1 : 0
+#   backup_vault_name = var.vault_name
+#   sns_topic_arn     = module.sns_topic.sns_topic_arn
+#   backup_vault_events = [
+#     "BACKUP_JOB_COMPLETED", # filter successful backups on sns subscription!
+#     "RESTORE_JOB_STARTED", "RESTORE_JOB_COMPLETED",
+#     "S3_BACKUP_OBJECT_FAILED", "S3_RESTORE_OBJECT_FAILED"
+#   ]
+# }

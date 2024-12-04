@@ -26,7 +26,6 @@
 | [aws_backup_plan.daily](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan) | resource |
 | [aws_backup_selection.tagged_daily](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_selection) | resource |
 | [aws_backup_vault.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_vault) | resource |
-| [aws_backup_vault_notifications.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_vault_notifications) | resource |
 | [aws_iam_role.backup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.s3_backup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -55,10 +54,11 @@
 | <a name="input_backup_schedule"></a> [backup\_schedule](#input\_backup\_schedule) | Schedule of aws backup plan | `string` | `"cron(0 1 * * ? *)"` | no |
 | <a name="input_enable_continuous_backup"></a> [enable\_continuous\_backup](#input\_enable\_continuous\_backup) | Flag to enable continuos backup | `bool` | `false` | no |
 | <a name="input_enable_sns_notifications"></a> [enable\_sns\_notifications](#input\_enable\_sns\_notifications) | Create an SNS topic where backup notifications go | `bool` | `true` | no |
-| <a name="input_env"></a> [env](#input\_env) | Deployment environment | `string` | n/a | yes |
-| <a name="input_plan_selection_tag"></a> [plan\_selection\_tag](#input\_plan\_selection\_tag) | Resource selection for the plan | `list(map)` | <pre>[<br/>  {<br/>    "key": "",<br/>    "value": ""<br/>  }<br/>]</pre> | no |
+| <a name="input_env"></a> [env](#input\_env) | Envrionment for the plan | `string` | `"prod"` | no |
+| <a name="input_plan_selection_tag"></a> [plan\_selection\_tag](#input\_plan\_selection\_tag) | Resource selection for the plan | `list(map(string))` | <pre>[<br/>  {<br/>    "key": "Environment",<br/>    "value": "Production"<br/>  }<br/>]</pre> | no |
 | <a name="input_region"></a> [region](#input\_region) | The region where resources should be managed. | `string` | `"eu-central-1"` | no |
-| <a name="input_rules"></a> [rules](#input\_rules) | List of rules to attach to the plan | `list(map)` | <pre>[<br/>  {<br/>    "continuous_backup": true,<br/>    "name": "daily",<br/>    "recovery_point_tags": {<br/>      "Environment": "dev",<br/>      "Plan": "plan name"<br/>    },<br/>    "schedule": "cron(0 12 * * ? *)",<br/>    "vault": "Backup"<br/>  }<br/>]</pre> | no |
+| <a name="input_rules"></a> [rules](#input\_rules) | List of rules to attach to the plan | `list(any)` | <pre>[<br/>  {<br/>    "continuous_backup": true,<br/>    "name": "daily",<br/>    "schedule": "cron(0 12 * * ? *)",<br/>    "vault": "Backup"<br/>  }<br/>]</pre> | no |
+| <a name="input_vault_name"></a> [vault\_name](#input\_vault\_name) | Backup vault name | `string` | `"backup_vault"` | no |
 
 ## Outputs
 
