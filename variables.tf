@@ -39,18 +39,6 @@ variable "alarm_email_addresses" {
   default     = []
 }
 
-variable "backup_schedule" {
-  description = "Schedule of aws backup plan"
-  type        = string
-  default     = "cron(0 1 * * ? *)"
-}
-
-variable "enable_continuous_backup" {
-  description = "Flag to enable continuos backup"
-  type        = bool
-  default     = false
-}
-
 variable "backup_plan_name" {
   description = "Initial part of the plan name to which will be appended the env"
   type        = string

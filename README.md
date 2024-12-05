@@ -50,6 +50,7 @@ module "backup" {
 | [aws_backup_plan.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan) | resource |
 | [aws_backup_selection.selection_tag](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_selection) | resource |
 | [aws_backup_vault.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_vault) | resource |
+| [aws_backup_vault_notifications.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_vault_notifications) | resource |
 | [aws_iam_role.backup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.s3_backup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -75,8 +76,6 @@ module "backup" {
 | <a name="input_alarm_lambda_arn"></a> [alarm\_lambda\_arn](#input\_alarm\_lambda\_arn) | ARN of a lambda function that should be subscribed to monitoring notifications | `string` | `""` | no |
 | <a name="input_backup_plan_name"></a> [backup\_plan\_name](#input\_backup\_plan\_name) | Initial part of the plan name to which will be appended the env | `string` | `""` | no |
 | <a name="input_backup_retention_days"></a> [backup\_retention\_days](#input\_backup\_retention\_days) | Number of days recovery points should be kept. | `number` | `7` | no |
-| <a name="input_backup_schedule"></a> [backup\_schedule](#input\_backup\_schedule) | Schedule of aws backup plan | `string` | `"cron(0 1 * * ? *)"` | no |
-| <a name="input_enable_continuous_backup"></a> [enable\_continuous\_backup](#input\_enable\_continuous\_backup) | Flag to enable continuos backup | `bool` | `false` | no |
 | <a name="input_enable_sns_notifications"></a> [enable\_sns\_notifications](#input\_enable\_sns\_notifications) | Create an SNS topic where backup notifications go | `bool` | `true` | no |
 | <a name="input_env"></a> [env](#input\_env) | Envrionment for the plan | `string` | `"prod"` | no |
 | <a name="input_plan_selection_tag"></a> [plan\_selection\_tag](#input\_plan\_selection\_tag) | Resource selection for the plan | `list(map(string))` | <pre>[<br/>  {<br/>    "key": "Environment",<br/>    "value": "Production"<br/>  }<br/>]</pre> | no |
