@@ -1,5 +1,29 @@
 # terraform-aws-backup
 
+# This module is used to create and configure AWS Backup service together with related sns service and accesses
+
+# basic example
+```hcl
+module "backup" {
+  source  = "dasmeta/backup/aws"
+  version = "x.y.z"
+
+   plan_selection_tag = [
+    {
+      key   = "Environment"
+      value = "dev"
+    }
+  ]
+
+  rules = [
+    {
+      name              = "rule1"
+      schedule          = "cron(0 12 * * ? *)"
+      continuous_backup = true
+    }
+  ]
+}
+```
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
