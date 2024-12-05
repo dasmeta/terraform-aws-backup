@@ -21,8 +21,8 @@ resource "aws_backup_vault" "this" {
   }
 }
 
-resource "aws_backup_plan" "daily" {
-  name = "daily-${var.env}"
+resource "aws_backup_plan" "this" {
+  name = "${var.backup_plan_name}-${var.env}"
 
   dynamic "rule" {
     for_each = var.rules
@@ -40,9 +40,9 @@ resource "aws_backup_plan" "daily" {
   }
 }
 
-resource "aws_backup_selection" "tagged_daily" {
-  name    = "daily-tagged-${var.env}"
-  plan_id = aws_backup_plan.daily.id
+resource "aws_backup_selection" "selection_tag" {
+  name    = "${var.backup_plan_name}-${var.env}-selection"
+  plan_id = aws_backup_plan.this.id
 
   # Selection rules
   dynamic "selection_tag" {
