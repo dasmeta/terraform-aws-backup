@@ -1,17 +1,18 @@
-variable "env" {
-  description = "Deployment environment"
+variable "vault_name" {
+  description = "Backup vault name"
   type        = string
+  default     = "backup_vault"
 }
 
+variable "env" {
+  description = "Envrionment for the plan"
+  type        = string
+  default     = "prod"
+}
 variable "region" {
   description = "The region where resources should be managed."
   type        = string
   default     = "eu-central-1"
-}
-
-variable "component" {
-  description = "The component to which the resources deployed in this module belong to. This can be an application or a part of the overall infrastructure."
-  type        = string
 }
 
 variable "backup_retention_days" {
@@ -38,18 +39,6 @@ variable "alarm_email_addresses" {
   default     = []
 }
 
-variable "backup_schedule" {
-  description = "Schedule of aws backup plan"
-  type        = string
-  default     = "cron(0 1 * * ? *)"
-}
-
-variable "enable_continuous_backup" {
-  description = "Flag to enable continuos backup"
-  type        = bool
-  default     = false
-}
-
 variable "backup_plan_name" {
   description = "Initial part of the plan name to which will be appended the env"
   type        = string
@@ -58,12 +47,25 @@ variable "backup_plan_name" {
 
 variable "plan_selection_tag" {
   description = "Resource selection for the plan"
-  type        = list(map)
+  type        = list(map(string))
   default = [
     {
-      key   = ""
-      value = ""
+      key   = "Environment"
+      value = "Production"
     }
   ]
+}
 
+variable "rules" {
+  description = "List of rules to attach to the plan"
+  type        = list(any)
+  default = [
+    {
+      name              = "daily"
+      schedule          = "cron(0 12 * * ? *)"
+      continuous_backup = true
+      vault             = "Backup"
+
+    }
+  ]
 }

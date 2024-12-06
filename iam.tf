@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "assume_backup_role" {
 }
 
 resource "aws_iam_role" "backup" {
-  name               = local.vault_name
+  name               = var.vault_name
   assume_role_policy = data.aws_iam_policy_document.assume_backup_role.json
 }
 
