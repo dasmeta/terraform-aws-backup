@@ -41,7 +41,7 @@ module "backup" {
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_sns_topic"></a> [sns\_topic](#module\_sns\_topic) | terraform-aws-modules/sns/aws | ~> 3.0 |
+| <a name="module_sns_topic"></a> [sns\_topic](#module\_sns\_topic) | terraform-aws-modules/sns/aws | ~> 6.0 |
 
 ## Resources
 

@@ -92,7 +92,7 @@ resource "aws_kms_alias" "backup_sns" {
 
 module "sns_topic" {
   source  = "terraform-aws-modules/sns/aws"
-  version = "~> 3.0"
+  version = "~> 6.0"
 
 
   name              = "backups_${var.env}"
