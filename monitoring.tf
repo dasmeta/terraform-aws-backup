@@ -1,4 +1,5 @@
 data "aws_iam_policy_document" "kms" {
+  count = var.alarm_lambda_arn != "" ? 1 : 0
   statement {
     sid       = "Enable IAM User Permissions"
     actions   = ["kms:*"]
@@ -48,6 +49,7 @@ data "aws_iam_policy_document" "kms" {
 }
 
 data "aws_iam_policy_document" "backup_notifications" {
+  count     = var.alarm_lambda_arn != "" ? 1 : 0
   policy_id = "aws_backup_${var.env}"
 
   statement {
@@ -79,6 +81,7 @@ resource "aws_lambda_permission" "with_sns" {
 }
 
 resource "aws_kms_key" "this" {
+  count                   = var.alarm_lambda_arn != "" ? 1 : 0
   description             = "KMS key is used to encrypt this sns topic"
   deletion_window_in_days = 7
   enable_key_rotation     = true
@@ -86,13 +89,15 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "backup_sns" {
+  count         = var.enable_sns_notifications ? 1 : 0
   name          = "alias/aws_backup-sns-${var.env}"
   target_key_id = aws_kms_key.this.arn
 }
 
 module "sns_topic" {
+  count   = var.enable_sns_notifications ? 1 : 0
   source  = "terraform-aws-modules/sns/aws"
-  version = "~> 6.0"
+  version = "6.1.1"
 
 
   name              = "backups_${var.env}"
@@ -110,6 +115,7 @@ resource "aws_sns_topic_subscription" "lambda" {
 }
 
 resource "aws_sns_topic_subscription" "email" {
+  count         = var.alarm_lambda_arn != "" ? 1 : 0
   for_each      = length(var.alarm_email_addresses) > 0 ? toset(var.alarm_email_addresses) : toset([])
   topic_arn     = module.sns_topic.sns_topic_arn
   protocol      = "email"

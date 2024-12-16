@@ -48,7 +48,7 @@ variable "backup_plan_name" {
 variable "kms_key_alias" {
   description = "kms key alias"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "plan_selection_tag" {
