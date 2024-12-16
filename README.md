@@ -35,7 +35,7 @@ module "backup" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.81.0 |
 
 ## Modules
 
@@ -78,6 +78,7 @@ module "backup" {
 | <a name="input_backup_retention_days"></a> [backup\_retention\_days](#input\_backup\_retention\_days) | Number of days recovery points should be kept. | `number` | `7` | no |
 | <a name="input_enable_sns_notifications"></a> [enable\_sns\_notifications](#input\_enable\_sns\_notifications) | Create an SNS topic where backup notifications go | `bool` | `true` | no |
 | <a name="input_env"></a> [env](#input\_env) | Envrionment for the plan | `string` | `"prod"` | no |
+| <a name="input_kms_key_alias"></a> [kms\_key\_alias](#input\_kms\_key\_alias) | kms key alias | `string` | `""` | no |
 | <a name="input_plan_selection_tag"></a> [plan\_selection\_tag](#input\_plan\_selection\_tag) | Resource selection for the plan | `list(map(string))` | <pre>[<br/>  {<br/>    "key": "Environment",<br/>    "value": "Production"<br/>  }<br/>]</pre> | no |
 | <a name="input_region"></a> [region](#input\_region) | The region where resources should be managed. | `string` | `"eu-central-1"` | no |
 | <a name="input_rules"></a> [rules](#input\_rules) | List of rules to attach to the plan | `list(any)` | <pre>[<br/>  {<br/>    "continuous_backup": true,<br/>    "name": "daily",<br/>    "schedule": "cron(0 12 * * ? *)",<br/>    "vault": "Backup"<br/>  }<br/>]</pre> | no |

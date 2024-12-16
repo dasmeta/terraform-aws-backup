@@ -45,6 +45,12 @@ variable "backup_plan_name" {
   default     = ""
 }
 
+variable "kms_key_alias" {
+  description = "kms key alias"
+  type        = string
+  default     = ""
+}
+
 variable "plan_selection_tag" {
   description = "Resource selection for the plan"
   type        = list(map(string))
