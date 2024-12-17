@@ -24,7 +24,7 @@ variable "backup_retention_days" {
 variable "enable_sns_notifications" {
   description = "Create an SNS topic where backup notifications go"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "alarm_lambda_arn" {

@@ -8,7 +8,7 @@ resource "aws_kms_key" "backup" {
 }
 
 resource "aws_kms_alias" "backup" {
-  name          = var.kms_key_alias == null ? var.kms_key_alias : "alias/aws_backup-${var.vault_name}-${var.env}"
+  name          = var.kms_key_alias != null ? var.kms_key_alias : "alias/aws_backup-${var.vault_name}-${var.env}"
   target_key_id = aws_kms_key.backup.arn
 }
 
