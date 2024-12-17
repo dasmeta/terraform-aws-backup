@@ -24,7 +24,7 @@ variable "backup_retention_days" {
 variable "enable_sns_notifications" {
   description = "Create an SNS topic where backup notifications go"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "alarm_lambda_arn" {
@@ -43,6 +43,12 @@ variable "backup_plan_name" {
   description = "Initial part of the plan name to which will be appended the env"
   type        = string
   default     = ""
+}
+
+variable "kms_key_alias" {
+  description = "kms key alias"
+  type        = string
+  default     = null
 }
 
 variable "plan_selection_tag" {
