@@ -1,17 +1,3 @@
-data "aws_caller_identity" "current" {}
-
-resource "aws_kms_key" "backup" {
-  description             = "${var.env}: Encrypt backup recovery points"
-  deletion_window_in_days = 7
-  policy                  = data.aws_iam_policy_document.backup_kms.json
-  enable_key_rotation     = true
-}
-
-resource "aws_kms_alias" "backup" {
-  name          = var.kms_key_alias != null ? var.kms_key_alias : "alias/aws_backup-${var.vault_name}-${var.env}"
-  target_key_id = aws_kms_key.backup.arn
-}
-
 resource "aws_backup_vault" "this" {
   name        = var.vault_name
   kms_key_arn = aws_kms_key.backup.arn
@@ -19,6 +5,29 @@ resource "aws_backup_vault" "this" {
   lifecycle {
     prevent_destroy = false
   }
+}
+
+resource "aws_backup_vault_policy" "source_backup_vault_policy" {
+  count = var.cross_accout_backup ? 1 : 0
+
+  backup_vault_name = aws_backup_vault.this.name
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid : "AllowCrossAccountAccess",
+        Effect = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.destination.account_id}:root"
+        },
+        Action = [
+          "backup:CopyFromBackupVault",
+          "backup:CopyIntoBackupVault"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
 }
 
 resource "aws_backup_plan" "this" {
@@ -36,6 +45,15 @@ resource "aws_backup_plan" "this" {
         delete_after = var.backup_retention_days
       }
 
+      dynamic "copy_action" {
+        for_each = var.cross_accout_backup ? [rule.value] : []
+        content {
+          destination_vault_arn = aws_backup_vault.destination_backup_vault[0].arn
+          lifecycle {
+            delete_after = var.backup_retention_days
+          }
+        }
+      }
     }
   }
 }
@@ -53,6 +71,17 @@ resource "aws_backup_selection" "selection_tag" {
       value = selection_tag.value["value"]
     }
   }
+
+  iam_role_arn = aws_iam_role.backup.arn
+}
+
+resource "aws_backup_selection" "resource_selection" {
+  count   = length(var.backup_selection_resources) > 0 ? 1 : 0
+
+  name    = "${var.backup_plan_name}-${var.env}-selection"
+  plan_id = aws_backup_plan.this.id
+
+  resources = var.backup_selection_resources
 
   iam_role_arn = aws_iam_role.backup.arn
 }

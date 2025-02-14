@@ -1,32 +1,3 @@
-data "aws_iam_policy_document" "backup_kms" {
-
-  statement {
-    sid       = "Enable IAM User Permissions"
-    actions   = ["kms:*"]
-    resources = ["*"]
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-    }
-  }
-
-  statement {
-    sid = "Allow Backup role to use the key"
-    actions = [
-      "kms:Decrypt",
-      "kms:Encrypt",
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        aws_iam_role.backup.arn
-      ]
-    }
-  }
-
-}
-
 data "aws_iam_policy_document" "assume_backup_role" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -38,9 +9,44 @@ data "aws_iam_policy_document" "assume_backup_role" {
   }
 }
 
+resource "aws_iam_policy" "backup_permissions" {
+  count = var.cross_accout_backup ? 1 : 0
+
+  name        = "backup-permissions-policy"
+  description = "Policy for AWS Backup cross-account copy"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect"   : "Allow",
+        "Action"   : [
+          "backup:StartCopyJob",
+          "backup:GetRecoveryPointRestoreMetadata",
+          "backup:CopyIntoBackupVault"
+        ],
+        "Resource" : "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role" "backup" {
   name               = var.vault_name
   assume_role_policy = data.aws_iam_policy_document.assume_backup_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "attach_backup_policy" {
+  count = var.cross_accout_backup ? 1 : 0
+
+  role       = aws_iam_role.backup.name
+  policy_arn = aws_iam_policy.backup_permissions[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "service_restore_policy" {
+  count = var.cross_accout_backup ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
+  role       = aws_iam_role.backup.name
 }
 
 resource "aws_iam_role_policy_attachment" "main" {

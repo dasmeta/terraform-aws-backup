@@ -1,9 +1,15 @@
 provider "aws" {
-  region = "eu-central-1"
+  alias   = "source"
+  region  = "eu-central-1" 
+}
+
+provider "aws" {
+  alias   = "destination"
+  region  = "eu-central-1" 
 }
 
 module "aws_backup" {
-  source = "./.."
+  source = "./../../"
 
   plan_selection_tag = [
     {
@@ -19,4 +25,10 @@ module "aws_backup" {
       continuous_backup = true
     }
   ]
+
+  providers = {
+    aws = aws.source
+    aws.destination = aws.destination
+  }
+
 }
