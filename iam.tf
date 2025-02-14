@@ -9,6 +9,7 @@ data "aws_iam_policy_document" "assume_backup_role" {
   }
 }
 
+
 resource "aws_iam_policy" "backup_permissions" {
   count = var.cross_accout_backup ? 1 : 0
 
