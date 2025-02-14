@@ -4,28 +4,28 @@ resource "aws_kms_key" "backup" {
   enable_key_rotation     = true
 
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : [
             "arn:aws:iam::${data.aws_caller_identity.source.account_id}:root"
           ]
         },
-        "Action": [
+        "Action" : [
           "kms:*"
         ],
-        "Resource": "*"
+        "Resource" : "*"
       },
       {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : [
             "arn:aws:iam::${data.aws_caller_identity.destination.account_id}:root"
           ]
         },
-        "Action": [
+        "Action" : [
           "kms:Encrypt",
           "kms:Decrypt",
           "kms:ReEncrypt*",
@@ -35,7 +35,7 @@ resource "aws_kms_key" "backup" {
           "kms:ListGrants",
           "kms:RevokeGrant"
         ],
-        "Resource": "*"
+        "Resource" : "*"
       },
     ]
   })

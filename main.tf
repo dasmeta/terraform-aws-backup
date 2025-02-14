@@ -76,7 +76,7 @@ resource "aws_backup_selection" "selection_tag" {
 }
 
 resource "aws_backup_selection" "resource_selection" {
-  count   = length(var.backup_selection_resources) > 0 ? 1 : 0
+  count = length(var.backup_selection_resources) > 0 ? 1 : 0
 
   name    = "${var.backup_plan_name}-${var.env}-selection"
   plan_id = aws_backup_plan.this.id

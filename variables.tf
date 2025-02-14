@@ -77,13 +77,13 @@ variable "rules" {
 }
 
 variable "cross_accout_backup" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Enable cross account backup"
 }
 
 variable "backup_selection_resources" {
-  type = list(string)
+  type        = list(string)
   description = "Resources which will be backup"
-  default = []
+  default     = []
 }
