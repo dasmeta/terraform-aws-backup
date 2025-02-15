@@ -97,7 +97,7 @@ resource "aws_kms_alias" "backup_sns" {
 module "sns_topic" {
   count   = var.enable_sns_notifications ? 1 : 0
   source  = "terraform-aws-modules/sns/aws"
-  version = "6.1.1"
+  version = "6.1.2"
 
 
   name              = "backups_${var.env}"
