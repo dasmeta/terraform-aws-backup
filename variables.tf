@@ -42,7 +42,7 @@ variable "alarm_email_addresses" {
 variable "backup_plan_name" {
   description = "Initial part of the plan name to which will be appended the env"
   type        = string
-  default     = ""
+  default     = "backup_plan"
 }
 
 variable "kms_key_alias" {
@@ -74,4 +74,16 @@ variable "rules" {
 
     }
   ]
+}
+
+variable "cross_accout_backup" {
+  type        = bool
+  default     = false
+  description = "Enable cross account backup"
+}
+
+variable "backup_selection_resources" {
+  type        = list(string)
+  description = "Resources which will be backup"
+  default     = []
 }
