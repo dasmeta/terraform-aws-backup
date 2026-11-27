@@ -99,3 +99,20 @@ module "backup" {
 
 No outputs.
 <!-- END_TF_DOCS -->
+
+## Independent copy retention
+
+Set `copy_retention_days` to retain cross-account copies for a different duration from the source recovery points. Omit it to preserve the existing source retention setting for both.
+
+## Optional archive tiers
+
+`archive_tiers` creates a separate snapshot plan for explicitly selected `backup_selection_resources`, reusing this module's source vault and backup role. When cross-account backup is enabled, each archive tier copies to the existing destination vault with the same retention. The default empty list creates no archive plan. For example:
+
+```hcl
+archive_tiers = [
+  { name = "weekly", schedule = "cron(0 3 ? * SUN *)", retention_days = 84 },
+  { name = "monthly", schedule = "cron(0 4 1 * ? *)", retention_days = 365 },
+]
+```
+
+Check AWS Backup scheduling overlaps, cross-account permissions, costs, and recovery-point freshness before applying. Archive snapshot schedules do not establish a recovery point objective by themselves.
