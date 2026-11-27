@@ -116,3 +116,7 @@ archive_tiers = [
 ```
 
 Check AWS Backup scheduling overlaps, cross-account permissions, costs, and recovery-point freshness before applying. Archive snapshot schedules do not establish a recovery point objective by themselves.
+
+## Two-stage RDS backup copies
+
+The `modules/rds_intermediate` submodule supports a source backup, an intermediate cross-region copy and forwarding into a separate destination account, with opt-in retention tiers. See its README for configuration, provider aliases, permissions and recovery limitations. Existing deployments moving into this submodule must migrate resource addresses with Terraform `moved` blocks and review the resulting plan before applying.
