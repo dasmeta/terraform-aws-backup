@@ -50,7 +50,7 @@ resource "aws_backup_plan" "this" {
         content {
           destination_vault_arn = aws_backup_vault.destination_backup_vault[0].arn
           lifecycle {
-            delete_after = var.backup_retention_days
+            delete_after = coalesce(var.copy_retention_days, var.backup_retention_days)
           }
         }
       }
