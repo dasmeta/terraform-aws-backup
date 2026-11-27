@@ -87,3 +87,42 @@ variable "backup_selection_resources" {
   description = "Resources which will be backup"
   default     = []
 }
+
+variable "copy_retention_days" {
+  description = "Optional retention in days for cross-account copies; defaults to source backup retention."
+  type        = number
+  default     = null
+  validation {
+    condition     = var.copy_retention_days == null ? true : var.copy_retention_days >= 1 && var.copy_retention_days <= 36500 && floor(var.copy_retention_days) == var.copy_retention_days
+    error_message = "copy_retention_days must be a whole number between 1 and 36500."
+  }
+}
+
+variable "archive_tiers" {
+  type = list(object({
+    name           = string # Unique backup rule name.
+    schedule       = string # AWS Backup cron schedule.
+    retention_days = number # Source and copy retention in days.
+  }))
+  default     = []
+  description = "Optional periodic snapshot tiers for explicitly selected resources."
+  validation {
+    condition = alltrue([for tier in var.archive_tiers :
+      can(regex("^[a-zA-Z0-9_-]{1,50}$", tier.name)) && can(regex("^cron\\(.+\\)$", tier.schedule)) && tier.retention_days >= 1 && tier.retention_days <= 36500 && floor(tier.retention_days) == tier.retention_days
+    ]) && length(distinct([for tier in var.archive_tiers : tier.name])) == length(var.archive_tiers)
+    error_message = "Archive tiers must have unique valid names, cron schedules and positive whole-day retention."
+  }
+}
+
+variable "copy_monitoring" {
+  type = object({
+    enabled        = optional(bool, false) # Enable copy failure alerts.
+    sns_topic_name = optional(string, "")  # Existing SNS topic in the source Region.
+  })
+  default     = {}
+  description = "Optional copy failure monitoring using an existing SNS topic."
+  validation {
+    condition     = !var.copy_monitoring.enabled || can(regex("^[a-zA-Z0-9_-]{1,256}$", var.copy_monitoring.sns_topic_name))
+    error_message = "A valid existing SNS topic name is required when copy monitoring is enabled."
+  }
+}

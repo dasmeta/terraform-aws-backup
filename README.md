@@ -99,3 +99,43 @@ module "backup" {
 
 No outputs.
 <!-- END_TF_DOCS -->
+
+## Independent copy retention
+
+Set `copy_retention_days` to retain cross-account copies for a different duration from the source recovery points. Omit it to preserve the existing source retention setting for both.
+
+## Optional archive tiers
+
+`archive_tiers` creates a separate snapshot plan for explicitly selected `backup_selection_resources`, reusing this module's source vault and backup role. When cross-account backup is enabled, each archive tier copies to the existing destination vault with the same retention. The default empty list creates no archive plan. For example:
+
+```hcl
+archive_tiers = [
+  { name = "weekly", schedule = "cron(0 3 ? * SUN *)", retention_days = 84 },
+  { name = "monthly", schedule = "cron(0 4 1 * ? *)", retention_days = 365 },
+]
+```
+
+Check AWS Backup scheduling overlaps, cross-account permissions, costs, and recovery-point freshness before applying. Archive snapshot schedules do not establish a recovery point objective by themselves.
+
+## Two-stage RDS backup copies
+
+The `modules/rds_intermediate` submodule supports a source backup, an intermediate cross-region copy and forwarding into a separate destination account, with opt-in retention tiers. See its README for configuration, provider aliases, permissions and recovery limitations. Existing deployments moving into this submodule must migrate resource addresses with Terraform `moved` blocks and review the resulting plan before applying.
+
+## Copy failure monitoring
+
+Set `copy_monitoring = { enabled = true, sns_topic_name = "example-alerts" }` to send CloudWatch alarm notifications to an existing SNS topic in the source account and Region. Monitoring defaults to disabled. Failed or partial copy events are recorded in CloudWatch Logs for 30 days. AWS Backup events are delivered on a best-effort basis; use per-resource recovery-point freshness monitoring and test restores separately. Confirm the SNS topic policy and any customer-managed KMS key permit CloudWatch to publish, then test delivery end to end.
+
+## Local verification
+
+Terraform 1.11 or newer is required to run the mocked tests (the module's runtime version requirements are unchanged). After installing Terraform and its providers, run:
+
+```sh
+terraform init -backend=false
+terraform test
+(cd modules/copy_monitor && terraform init -backend=false && terraform test)
+(cd modules/rds_intermediate && terraform init -backend=false && terraform test)
+python3 -m unittest discover -s modules/rds_intermediate/tests -p test_forward_copy.py
+(cd modules/rds_intermediate && ruby tests/rds_intermediate_contract_test.rb)
+```
+
+The CI workflow runs these tests on Terraform 1.14.7; they use mock AWS providers and do not apply infrastructure.
