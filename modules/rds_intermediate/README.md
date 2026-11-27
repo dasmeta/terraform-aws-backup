@@ -44,7 +44,7 @@ configured intermediate vault. Its delivery role forwards each matching event
 to the module's dedicated the intermediate Region bus. A rule on that bus invokes the the intermediate Region
 Lambda, which checks the original account, Region, vault, state, resource type
 and snapshot ARN before submitting a copy. The DR vault ARN comes from
-`rds_copy.destination_vault_arn`. DR copies expire after seven days. Repeated
+`rds_copy.destination_vault_arn`. DR copies retain the source recovery point lifecycle; the default snapshot retention is seven days. Repeated
 deliveries use the SHA-256 digest of the intermediate snapshot ARN as the
 AWS Backup idempotency token.
 [AWS cross-Region RDS backup architecture](https://aws.amazon.com/blogs/storage/protecting-encrypted-amazon-rds-instances-with-cross-account-and-cross-region-backups/),
