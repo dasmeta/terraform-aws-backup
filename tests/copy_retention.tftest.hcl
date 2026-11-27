@@ -1,4 +1,5 @@
 mock_provider "aws" {
+  mock_data "aws_sns_topic" { defaults = { arn = "arn:aws:sns:eu-central-1:111122223333:example-alerts" } }
   mock_data "aws_iam_policy_document" { defaults = { json = "{\"Version\":\"2012-10-17\",\"Statement\":[]}" } }
 }
 mock_provider "aws" { alias = "destination" }
@@ -40,4 +41,31 @@ run "archive_tiers_have_separate_lifecycles" {
     condition     = length(aws_backup_plan.archive) == 1 && toset([for rule in aws_backup_plan.archive[0].rule : rule.lifecycle[0].delete_after]) == toset([84, 365]) && toset([for rule in aws_backup_plan.archive[0].rule : one(rule.copy_action).lifecycle[0].delete_after]) == toset([84, 365])
     error_message = "Archive tiers must preserve their source and destination retention independently."
   }
+}
+
+run "copy_monitoring_is_disabled_by_default" {
+  command = plan
+  assert {
+    condition     = length(module.copy_monitor) == 0
+    error_message = "Monitoring must be disabled for existing users."
+  }
+}
+
+run "copy_monitoring_uses_existing_topic" {
+  command = plan
+  variables {
+    copy_monitoring = { enabled = true, sns_topic_name = "example-alerts" }
+  }
+  assert {
+    condition     = length(module.copy_monitor) == 1
+    error_message = "Enabling monitoring must create the copy monitoring module."
+  }
+}
+
+run "copy_monitoring_requires_a_topic_name" {
+  command = plan
+  variables {
+    copy_monitoring = { enabled = true }
+  }
+  expect_failures = [var.copy_monitoring]
 }

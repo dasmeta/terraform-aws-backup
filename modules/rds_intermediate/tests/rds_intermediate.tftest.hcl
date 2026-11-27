@@ -1,4 +1,5 @@
 mock_provider "aws" {
+  mock_data "aws_sns_topic" { defaults = { arn = "arn:aws:sns:eu-central-1:111122223333:example-alerts" } }
   alias           = "source"
   override_during = plan
 
@@ -663,5 +664,16 @@ run "archive_tiers_preserve_lifecycle_in_source_and_intermediate" {
   assert {
     condition     = toset([for rule in aws_backup_plan.source.rule : rule.lifecycle[0].delete_after]) == toset([2, 7, 84, 365]) && alltrue([for rule in aws_backup_plan.source.rule : one(rule.copy_action).lifecycle[0].delete_after == rule.lifecycle[0].delete_after])
     error_message = "Every RDS snapshot tier must retain the same lifecycle in source and intermediate."
+  }
+}
+
+run "enables_copy_failure_monitoring_with_topic" {
+  command = plan
+  variables {
+    rds_copy = merge(var.rds_copy, { copy_monitoring = { enabled = true, sns_topic_name = "example-alerts" } })
+  }
+  assert {
+    condition     = length(module.copy_monitor) == 1
+    error_message = "RDS copy monitoring should be enabled with an existing topic."
   }
 }

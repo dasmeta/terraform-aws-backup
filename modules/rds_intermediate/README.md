@@ -204,3 +204,7 @@ No modules.
 Set `rds_copy.archive_tiers` to periodic snapshot rules with a name, AWS Backup cron schedule, and `retention_days`. The default empty list preserves existing behavior. Weekly (84-day) and monthly (365-day) tiers must be selected and scheduled deliberately. Confirm effective AWS Backup windows, source and destination lifecycles, and coordinated RDS/S3 restore behavior before production use.
 
 The intermediate copies keep the same retention as their source rules so the forwarder can preserve it in DR. This adds intermediate storage cost. Reconciliation retries missing archive copies for seven days; failures beyond that window need operator action. Validate AWS Backup schedule overlap and the age of every resource’s newest completed DR copy before production deployment.
+
+## Optional copy monitoring
+
+Set `rds_copy.copy_monitoring` to `{ enabled = true, sns_topic_name = "example-alerts" }` to use an existing SNS topic in the source account and Region. The module monitors both RDS copy legs and relays the existing forwarder and RPO alarm transitions from the intermediate Region. It sends CloudWatch alarms and stores event details in CloudWatch Logs for 30 days. Delivery is best effort and repeated failures may be grouped while an alarm remains active. Validate the cross-region relay and SNS/KMS permissions with an end-to-end test. This is not a per-resource recovery-point freshness guarantee.

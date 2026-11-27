@@ -1,0 +1,10 @@
+variable "name_prefix" { type = string }
+variable "source_region" { type = string }
+variable "intermediate_region" { type = string }
+variable "account_id" { type = string }
+variable "sns_topic_name" { type = string }
+variable "source_vault_arns" { type = list(string) }
+variable "resource_types" { type = list(string) }
+variable "intermediate_vault_arn" { type = string }
+variable "destination_vault_arn" { type = string }
+variable "rds_alarm_names" { type = list(string) }

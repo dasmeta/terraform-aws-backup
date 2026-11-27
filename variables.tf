@@ -113,3 +113,16 @@ variable "archive_tiers" {
     error_message = "Archive tiers must have unique valid names, cron schedules and positive whole-day retention."
   }
 }
+
+variable "copy_monitoring" {
+  type = object({
+    enabled        = optional(bool, false) # Enable copy failure alerts.
+    sns_topic_name = optional(string, "")  # Existing SNS topic in the source Region.
+  })
+  default     = {}
+  description = "Optional copy failure monitoring using an existing SNS topic."
+  validation {
+    condition     = !var.copy_monitoring.enabled || can(regex("^[a-zA-Z0-9_-]{1,256}$", var.copy_monitoring.sns_topic_name))
+    error_message = "A valid existing SNS topic name is required when copy monitoring is enabled."
+  }
+}
