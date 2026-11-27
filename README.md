@@ -124,3 +124,18 @@ The `modules/rds_intermediate` submodule supports a source backup, an intermedia
 ## Copy failure monitoring
 
 Set `copy_monitoring = { enabled = true, sns_topic_name = "example-alerts" }` to send CloudWatch alarm notifications to an existing SNS topic in the source account and Region. Monitoring defaults to disabled. Failed or partial copy events are recorded in CloudWatch Logs for 30 days. AWS Backup events are delivered on a best-effort basis; use per-resource recovery-point freshness monitoring and test restores separately. Confirm the SNS topic policy and any customer-managed KMS key permit CloudWatch to publish, then test delivery end to end.
+
+## Local verification
+
+Terraform 1.11 or newer is required to run the mocked tests (the module's runtime version requirements are unchanged). After installing Terraform and its providers, run:
+
+```sh
+terraform init -backend=false
+terraform test
+(cd modules/copy_monitor && terraform init -backend=false && terraform test)
+(cd modules/rds_intermediate && terraform init -backend=false && terraform test)
+python3 -m unittest discover -s modules/rds_intermediate/tests -p test_forward_copy.py
+(cd modules/rds_intermediate && ruby tests/rds_intermediate_contract_test.rb)
+```
+
+The CI workflow runs these tests on Terraform 1.14.7; they use mock AWS providers and do not apply infrastructure.

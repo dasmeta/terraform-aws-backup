@@ -1,0 +1,60 @@
+name: Backup module tests
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ['.', 'modules/copy_monitor', 'modules/rds_intermediate']
+    defaults:
+      run:
+        working-directory: ${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.7
+          terraform_wrapper: false
+      - name: Initialize
+        run: terraform init -backend=false -input=false
+      - name: Validate with provider aliases
+        shell: bash
+        run: |
+          cat > ci-validation-providers.tf <<'PROVIDERS'
+          provider "aws" { region = "us-east-1" }
+          provider "aws" {
+            alias = "source"
+            region = "us-east-1"
+          }
+          provider "aws" {
+            alias = "intermediate"
+            region = "us-west-2"
+          }
+          provider "aws" {
+            alias = "destination"
+            region = "us-west-2"
+          }
+          PROVIDERS
+          trap 'rm -f ci-validation-providers.tf' EXIT
+          terraform validate
+      - name: Run mocked Terraform tests
+        run: terraform test
+      - uses: ruby/setup-ruby@v1
+        if: matrix.module == 'modules/rds_intermediate'
+        with:
+          ruby-version: '3.2'
+      - name: Run RDS forwarding unit tests
+        if: matrix.module == 'modules/rds_intermediate'
+        run: python3 -m unittest discover -s tests -p test_forward_copy.py
+      - name: Run RDS contract tests
+        if: matrix.module == 'modules/rds_intermediate'
+        run: ruby tests/rds_intermediate_contract_test.rb
