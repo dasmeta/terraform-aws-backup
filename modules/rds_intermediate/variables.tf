@@ -1,16 +1,17 @@
 variable "rds_copy" {
   type = object({
-    source_region           = string                                                                                    # AWS Region containing the RDS instances and source vault.
-    intermediate_region     = string                                                                                    # AWS Region containing the intermediate vault in the source account.
-    source_role_arn         = string                                                                                    # IAM role Terraform assumes to manage the source Region resources.
-    intermediate_role_arn   = string                                                                                    # IAM role Terraform assumes to manage the intermediate Region resources.
-    source_vault_name       = string                                                                                    # Name of the vault for source RDS recovery points.
-    intermediate_vault_name = string                                                                                    # Name of the vault for re-encrypted intermediate copies.
-    destination_vault_arn   = string                                                                                    # ARN of the existing vault in the disaster-recovery account.
-    rds_backup_tag_value    = string                                                                                    # Required value of the backup:rule:rds tag on source DB instances.
-    schedule                = optional(string, "cron(15 * ? * * *)")                                                    # AWS Backup cron schedule for source RDS snapshots.
-    retention_days          = optional(number, 7)                                                                       # Number of days to retain RDS recovery points, from 1 to 36,500.
-    archive_tiers           = optional(list(object({ name = string, schedule = string, retention_days = number })), []) # Periodic snapshots and retention.
+    source_region           = string                                                                                           # AWS Region containing the RDS instances and source vault.
+    intermediate_region     = string                                                                                           # AWS Region containing the intermediate vault in the source account.
+    source_role_arn         = string                                                                                           # IAM role Terraform assumes to manage the source Region resources.
+    intermediate_role_arn   = string                                                                                           # IAM role Terraform assumes to manage the intermediate Region resources.
+    source_vault_name       = string                                                                                           # Name of the vault for source RDS recovery points.
+    intermediate_vault_name = string                                                                                           # Name of the vault for re-encrypted intermediate copies.
+    destination_vault_arn   = string                                                                                           # ARN of the existing vault in the disaster-recovery account.
+    rds_backup_tag_value    = string                                                                                           # Required value of the backup:rule:rds tag on source DB instances.
+    schedule                = optional(string, "cron(15 * ? * * *)")                                                           # AWS Backup cron schedule for source RDS snapshots.
+    retention_days          = optional(number, 7)                                                                              # Number of days to retain RDS recovery points, from 1 to 36,500.
+    copy_monitoring         = optional(object({ enabled = optional(bool, false), sns_topic_name = optional(string, "") }), {}) # Optional failure alert topic.
+    archive_tiers           = optional(list(object({ name = string, schedule = string, retention_days = number })), [])        # Periodic snapshots and retention.
   })
   description = "Regions, IAM roles, vaults, and backup settings for two-stage RDS disaster-recovery copies."
   nullable    = false
@@ -96,6 +97,10 @@ variable "rds_copy" {
       floor(var.rds_copy.retention_days) == var.rds_copy.retention_days
     )
     error_message = "retention_days must be a whole number from 1 to 36,500 days."
+  }
+  validation {
+    condition     = !var.rds_copy.copy_monitoring.enabled || can(regex("^[a-zA-Z0-9_-]{1,256}$", var.rds_copy.copy_monitoring.sns_topic_name))
+    error_message = "A valid existing SNS topic name is required when copy monitoring is enabled."
   }
   validation {
     condition     = length(distinct([for tier in var.rds_copy.archive_tiers : tier.name])) == length(var.rds_copy.archive_tiers) && alltrue([for tier in var.rds_copy.archive_tiers : can(regex("^[a-zA-Z0-9-]{1,50}$", tier.name)) && tier.name != "rds-snapshot" && can(regex("^cron\\(.+\\)$", tier.schedule)) && tier.retention_days > var.rds_copy.retention_days && tier.retention_days <= 36500 && floor(tier.retention_days) == tier.retention_days])
