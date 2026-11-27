@@ -6,3 +6,5 @@
 - [x] Document verification and limitations; update consumer settings.
 
 - [ ] Verify an actual Terraform plan and end-to-end event and notification delivery in the consumer account.
+- [x] Add CI jobs for root and submodule mocked Terraform, RDS Python and Ruby contract tests, and document the testing toolchain.
+- [ ] Verify the GitHub Actions run after the branch is pushed.
